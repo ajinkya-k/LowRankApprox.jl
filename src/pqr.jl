@@ -350,12 +350,22 @@ function geqp3_adap!(A::AbstractMatrix{T}, opts::LRAOptions) where T
   jpvt = collect(BlasInt, 1:n)
   l    = min(m, n)
   k    = (opts.rank < 0 || opts.rank > l) ? l : opts.rank
-  tau  = Array{T}(undef, k)
   if k > 0
-    k = geqp3_adap_main!(A, jpvt, tau, opts)
+    if LAPACK.version() < v"3.12.0"
+      tau  = Array{T}(undef, k)
+      k = geqp3_adap_main!(A, jpvt, tau, opts)
+    else
+      tau  = Array{T}(undef, min(size(A)...))
+      k = geqp3_adap_lapack!(A, k, jpvt, tau, opts)
+    end
   end
   jpvt = convert(Array{Int}, jpvt)
   jpvt, tau, k
+end
+
+function geqp3_adap_lapack!(A::AbstractMatrix{T}, kmax::BlasInt, jpvt::Vector{BlasInt}, tau::Vector{T}, opts::LRAOptions) where T<:BlasFloat
+  A, k, tau, jpvt = _LAPACK.geqp3rk!(A, 0, kmax, opts.atol, opts.rtol, jpvt, tau)
+  return k
 end
 
 function geqp3_adap_main!(
