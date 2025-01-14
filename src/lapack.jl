@@ -142,7 +142,7 @@ end
 for (geqp3rk, elty, relty) in ((:sgeqp3rk_,:Float32,:Float32),
                                (:dgeqp3rk_,:Float64,:Float64),
                                (:cgeqp3rk_,:ComplexF32,:Float32),
-                               (:zgeqp3rk_,:ComplexF32,:Float64))
+                               (:zgeqp3rk_,:ComplexF64,:Float64))
   @eval begin
     function geqp3rk!(
       A::AbstractMatrix{$elty},
@@ -185,8 +185,8 @@ for (geqp3rk, elty, relty) in ((:sgeqp3rk_,:Float32,:Float32),
                         Ref{BlasInt}, #n
                         Ref{BlasInt}, #nrhs
                         Ref{BlasInt},#kmax
-                        Ref{$elty},  #abstol
-                        Ref{$elty},  #reltol
+                        Ref{$relty},  #abstol
+                        Ref{$relty},  #reltol
                         Ptr{$elty},   #A
                         Ref{BlasInt}, #lda
                         Ptr{BlasInt}, #k
